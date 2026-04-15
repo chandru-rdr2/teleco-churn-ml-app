@@ -1,7 +1,8 @@
 # 📊 Telecom Customer Churn Prediction
 
 ## 🌐 Live Demo
-[Click here to use the app]                       https://teleco-churn-ml-app-eka.streamlit.app/
+[Click here to use the app]
+https://teleco-churn-ml-app-eka.streamlit.app/                      
 
 ## 🚀 Overview
 This project predicts whether a telecom customer is likely to churn using Machine Learning.
