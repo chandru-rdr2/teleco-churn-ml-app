@@ -30,12 +30,12 @@ streamlit run app.py
 
 ## 📸 App Preview
 
-![Churn Prediction App](images/app.png)
+![Churn Prediction App](./images/app.png)
 
 ## 📸 App Preview
 
 ### 🔹 Input Section
-![Input](images/input.png)
+![Input](./images/input.png)
 
 ### 🔹 Prediction Result
-![Output](images/output.png)
+![Output](./images/output.png)

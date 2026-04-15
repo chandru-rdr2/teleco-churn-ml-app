@@ -1,77 +1,157 @@
 import streamlit as st
+import plotly.graph_objects as go
 from src.predict import predict_churn
 
 # ------------------ PAGE CONFIG ------------------
-st.set_page_config(
-    page_title="Telecom Churn Prediction",
-    layout="wide"
+st.set_page_config(page_title="Telecom Churn AI", layout="wide")
+
+# ------------------ THEME SELECTOR ------------------
+st.sidebar.title("🎨 Theme Customization")
+
+theme = st.sidebar.selectbox(
+    "Choose Theme",
+    ["Light", "Dark", "Gold", "Silver", "Pale Pink"]
 )
 
-# ------------------ CUSTOM STYLE ------------------
-st.markdown("""
-    <style>
-    .main {
-        background-color: #0f172a;
-        color: #e5e7eb;
-    }
-    h1 {
-        color: #d4af37; /* gold */
-        text-align: center;
-    }
-    .stButton>button {
-        background-color: #d4af37;
-        color: black;
-        border-radius: 10px;
-        height: 3em;
-        width: 100%;
-        font-weight: bold;
-    }
-    .stButton>button:hover {
-        background-color: #b8962e;
-        color: white;
-    }
-    </style>
+# ------------------ THEME COLORS ------------------
+if theme == "Light":
+    bg = "#ffffff"
+    text = "#000000"
+    card = "#f1f5f9"
+    accent = "#2563eb"
+
+elif theme == "Dark":
+    bg = "#000000"
+    text = "#ffffff"
+    card = "#111827"
+    accent = "#22c55e"
+
+elif theme == "Gold":
+    bg = "#FFD700"
+    text = "#000000"
+    card = "rgba(255,255,255,0.6)"
+    accent = "#b45309"
+
+elif theme == "Silver":
+    bg = "#C0C0C0"
+    text = "#000000"
+    card = "rgba(255,255,255,0.7)"
+    accent = "#374151"
+
+elif theme == "Pale Pink":
+    bg = "#fbcfe8"
+    text = "#000000"
+    card = "rgba(255,255,255,0.8)"
+    accent = "#be185d"
+
+# ------------------ FORCE FULL BACKGROUND FIX ------------------
+st.markdown(f"""
+<style>
+
+/* FORCE FULL PAGE BACKGROUND */
+.stApp {{
+    background-color: {bg} !important;
+    color: {text} !important;
+}}
+
+/* REMOVE DEFAULT HEADER */
+header, footer {{
+    visibility: hidden;
+}}
+
+/* MAIN AREA */
+.block-container {{
+    padding-top: 2rem;
+}}
+
+/* CARD DESIGN */
+.card {{
+    background: {card};
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}}
+
+/* TITLE */
+.title {{
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    color: {accent};
+}}
+
+/* BUTTON */
+.stButton>button {{
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+    border: none;
+    background: {accent};
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}}
+
+.stButton>button:hover {{
+    opacity: 0.85;
+}}
+
+/* TEXT COLOR FIX */
+label, .stMarkdown, .stText {{
+    color: {text} !important;
+}}
+
+</style>
 """, unsafe_allow_html=True)
 
-# ------------------ TITLE ------------------
-st.title("📊 Telecom Customer Churn Prediction")
-st.write("Predict whether a customer will churn or not")
+# ------------------ HEADER ------------------
+st.markdown('<div class="title">📊 Telecom Churn AI</div>', unsafe_allow_html=True)
+st.write("### 🤖 Smart Customer Retention System")
 
-# ------------------ SIDEBAR INPUT ------------------
-st.sidebar.header("Customer Inputs")
+# ------------------ LAYOUT ------------------
+col1, col2 = st.columns([1, 2], gap="large")
 
-gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
-SeniorCitizen = st.sidebar.selectbox("Senior Citizen", [0, 1])
-Partner = st.sidebar.selectbox("Partner", ["Yes", "No"])
-Dependents = st.sidebar.selectbox("Dependents", ["Yes", "No"])
+# ------------------ INPUT SECTION ------------------
+with col1:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
-tenure = st.sidebar.slider("Tenure (months)", 0, 72, 12)
+    st.subheader("Customer Details")
 
-PhoneService = st.sidebar.selectbox("Phone Service", ["Yes", "No"])
-MultipleLines = st.sidebar.selectbox("Multiple Lines", ["Yes", "No"])
+    gender = st.selectbox("Gender", ["Male", "Female"])
+    SeniorCitizen = st.selectbox("Senior Citizen", [0, 1])
+    Partner = st.selectbox("Partner", ["Yes", "No"])
+    Dependents = st.selectbox("Dependents", ["Yes", "No"])
 
-InternetService = st.sidebar.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
+    tenure = st.slider("Tenure", 0, 72, 12)
 
-OnlineSecurity = st.sidebar.selectbox("Online Security", ["Yes", "No"])
-OnlineBackup = st.sidebar.selectbox("Online Backup", ["Yes", "No"])
-DeviceProtection = st.sidebar.selectbox("Device Protection", ["Yes", "No"])
-TechSupport = st.sidebar.selectbox("Tech Support", ["Yes", "No"])
+    PhoneService = st.selectbox("Phone Service", ["Yes", "No"])
+    MultipleLines = st.selectbox("Multiple Lines", ["Yes", "No"])
 
-StreamingTV = st.sidebar.selectbox("Streaming TV", ["Yes", "No"])
-StreamingMovies = st.sidebar.selectbox("Streaming Movies", ["Yes", "No"])
+    InternetService = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
 
-Contract = st.sidebar.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-PaperlessBilling = st.sidebar.selectbox("Paperless Billing", ["Yes", "No"])
+    OnlineSecurity = st.selectbox("Online Security", ["Yes", "No"])
+    OnlineBackup = st.selectbox("Online Backup", ["Yes", "No"])
+    DeviceProtection = st.selectbox("Device Protection", ["Yes", "No"])
+    TechSupport = st.selectbox("Tech Support", ["Yes", "No"])
 
-PaymentMethod = st.sidebar.selectbox(
-    "Payment Method",
-    ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"]
-)
+    StreamingTV = st.selectbox("Streaming TV", ["Yes", "No"])
+    StreamingMovies = st.selectbox("Streaming Movies", ["Yes", "No"])
 
-MonthlyCharges = st.sidebar.number_input("Monthly Charges", value=50.0)
-TotalCharges = st.sidebar.number_input("Total Charges", value=500.0)
+    Contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
+    PaperlessBilling = st.selectbox("Paperless Billing", ["Yes", "No"])
 
-# ------------------ INPUT DICTIONARY ------------------
+    PaymentMethod = st.selectbox(
+        "Payment Method",
+        ["Electronic check", "Mailed check", "Bank transfer", "Credit card"]
+    )
+
+    MonthlyCharges = st.number_input("Monthly Charges", value=50.0)
+    TotalCharges = st.number_input("Total Charges", value=500.0)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ------------------ INPUT DATA ------------------
 input_data = {
     'gender': gender,
     'SeniorCitizen': SeniorCitizen,
@@ -94,27 +174,46 @@ input_data = {
     'TotalCharges': TotalCharges
 }
 
-# ------------------ BUTTON + OUTPUT ------------------
-if st.button("🚀 Predict Churn"):
+# ------------------ OUTPUT SECTION ------------------
+with col2:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
-    prediction, probability = predict_churn(input_data)
+    st.subheader("Prediction Result")
 
-    st.markdown("---")
+    if st.button("🚀 Predict"):
+        prediction, probability = predict_churn(input_data)
 
-    # RESULT
-    if prediction == 1:
-        st.error(f"⚠️ Customer is likely to churn")
-    else:
-        st.success(f"✅ Customer is not likely to churn")
+        churn = probability
+        stay = 1 - probability
 
-    # PROBABILITY
-    st.subheader("📊 Prediction Confidence")
+        if prediction == 1:
+            st.error("⚠️ High Risk Customer")
+        else:
+            st.success("✅ Safe Customer")
 
-    prob_percent = int(probability * 100)
+        st.subheader("Confidence")
 
-    st.progress(prob_percent)
-    st.write(f"Churn Probability: **{prob_percent}%**")
+        st.progress(int(churn * 100))
+        st.write(f"### {int(churn * 100)}% Churn Probability")
+
+        # CHART
+        fig = go.Figure(data=[
+            go.Bar(x=["Stay", "Churn"], y=[stay, churn])
+        ])
+
+        fig.update_layout(
+            plot_bgcolor=bg,
+            paper_bgcolor=bg,
+            font=dict(color=text)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ------------------ FOOTER ------------------
 st.markdown("---")
-st.write("Built with Machine Learning & Streamlit 🚀")
+st.markdown(
+    "<center>🚀 Portfolio Project | AI + Streamlit</center>",
+    unsafe_allow_html=True
+)
