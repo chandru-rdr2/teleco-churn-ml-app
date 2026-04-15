@@ -44,27 +44,18 @@ elif theme == "Pale Pink":
     card = "rgba(255,255,255,0.8)"
     accent = "#be185d"
 
-# ------------------ FORCE FULL BACKGROUND FIX ------------------
+# ------------------ CSS ------------------
 st.markdown(f"""
 <style>
-
-/* FORCE FULL PAGE BACKGROUND */
 .stApp {{
     background-color: {bg} !important;
     color: {text} !important;
 }}
 
-/* REMOVE DEFAULT HEADER */
 header, footer {{
     visibility: hidden;
 }}
 
-/* MAIN AREA */
-.block-container {{
-    padding-top: 2rem;
-}}
-
-/* CARD DESIGN */
 .card {{
     background: {card};
     padding: 25px;
@@ -73,7 +64,6 @@ header, footer {{
     margin-bottom: 20px;
 }}
 
-/* TITLE */
 .title {{
     text-align: center;
     font-size: 40px;
@@ -81,27 +71,14 @@ header, footer {{
     color: {accent};
 }}
 
-/* BUTTON */
 .stButton>button {{
     width: 100%;
     height: 50px;
     border-radius: 12px;
-    border: none;
     background: {accent};
     color: white;
-    font-size: 16px;
     font-weight: bold;
 }}
-
-.stButton>button:hover {{
-    opacity: 0.85;
-}}
-
-/* TEXT COLOR FIX */
-label, .stMarkdown, .stText {{
-    color: {text} !important;
-}}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -110,13 +87,11 @@ st.markdown('<div class="title">📊 Telecom Churn AI</div>', unsafe_allow_html=
 st.write("### 🤖 Smart Customer Retention System")
 
 # ------------------ LAYOUT ------------------
-col1, col2 = st.columns([1, 2], gap="large")
+col1, col2 = st.columns([1, 2])
 
-# ------------------ INPUT SECTION ------------------
+# ------------------ INPUT ------------------
 with col1:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-
-    st.subheader("Customer Details")
 
     gender = st.selectbox("Gender", ["Male", "Female"])
     SeniorCitizen = st.selectbox("Senior Citizen", [0, 1])
@@ -143,7 +118,7 @@ with col1:
 
     PaymentMethod = st.selectbox(
         "Payment Method",
-        ["Electronic check", "Mailed check", "Bank transfer", "Credit card"]
+        ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"]
     )
 
     MonthlyCharges = st.number_input("Monthly Charges", value=50.0)
@@ -174,29 +149,30 @@ input_data = {
     'TotalCharges': TotalCharges
 }
 
-# ------------------ OUTPUT SECTION ------------------
+# ------------------ OUTPUT ------------------
 with col2:
     st.markdown('<div class="card">', unsafe_allow_html=True)
 
-    st.subheader("Prediction Result")
+    if st.button("🚀 Predict Churn"):
 
-    if st.button("🚀 Predict"):
-        prediction, probability = predict_churn(input_data)
+        prediction, probability, reasons = predict_churn(input_data)
 
-        churn = probability
-        stay = 1 - probability
-
+        # RESULT
         if prediction == 1:
-            st.error("⚠️ High Risk Customer")
+            st.error("⚠️ Customer is likely to churn")
         else:
-            st.success("✅ Safe Customer")
+            st.success("✅ Customer is not likely to churn")
 
-        st.subheader("Confidence")
-
-        st.progress(int(churn * 100))
-        st.write(f"### {int(churn * 100)}% Churn Probability")
+        # CONFIDENCE
+        prob_percent = int(probability * 100)
+        st.subheader("📊 Confidence Score")
+        st.progress(prob_percent)
+        st.write(f"Churn Probability: {prob_percent}%")
 
         # CHART
+        stay = 100 - prob_percent
+        churn = prob_percent
+
         fig = go.Figure(data=[
             go.Bar(x=["Stay", "Churn"], y=[stay, churn])
         ])
@@ -209,11 +185,17 @@ with col2:
 
         st.plotly_chart(fig, use_container_width=True)
 
+        # WHY CHURN
+        if prediction == 1:
+            st.subheader("🧠 Why this prediction?")
+            if reasons:
+                for r in reasons:
+                    st.write(f"• {r}")
+            else:
+                st.write("No strong risk factors detected")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ------------------ FOOTER ------------------
 st.markdown("---")
-st.markdown(
-    "<center>🚀 Portfolio Project | AI + Streamlit</center>",
-    unsafe_allow_html=True
-)
+st.markdown("<center>🚀 Portfolio Project | AI + Streamlit</center>", unsafe_allow_html=True)
